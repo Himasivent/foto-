@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Визуал для GitHub — карточки с фото и названиями</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f0f2f5;
+            font-family: system-ui, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            padding: 2rem 1.5rem;
+            color: #1e293b;
+        }
+
+        /* контейнер-обёртка для сетки */
+        .gallery {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* заголовок секции (как "Текст" в референсе) */
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin-bottom: 2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 4px solid #e2e8f0;
+            display: inline-block;
+            color: #0f172a;
+        }
+
+        /* грид для карточек — адаптивный, как мозаика */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        /* каждая карточка — фото + название */
+        .card {
+            background: white;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 24px 36px -16px rgba(0, 0, 0, 0.2);
+        }
+
+        /* контейнер изображения — единая высота, background для плейсхолдера */
+        .image-wrapper {
+            background: #eef2ff;
+            position: relative;
+            aspect-ratio: 1 / 1;
+            /* квадратный блок, как в стиле "Фото" */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover .card-img {
+            transform: scale(1.02);
+        }
+
+        /* плейсхолдер, если картинка отсутствует/не загрузилась */
+        .placeholder-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-weight: 500;
+            gap: 0.75rem;
+            background: #f8fafc;
+            width: 100%;
+            height: 100%;
+        }
+
+        .placeholder-icon svg {
+            width: 48px;
+            height: 48px;
+            stroke-width: 1.5;
+            stroke: #94a3b8;
+            fill: none;
+        }
+
+        .placeholder-icon span {
+            font-size: 0.9rem;
+            background: #e2e8f0;
+            padding: 0.25rem 0.75rem;
+            border-radius: 40px;
+        }
+
+        /* блок названия — "Наз" */
+        .card-caption {
+            padding: 1.2rem 1rem 1.4rem;
+            text-align: center;
+            background: white;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .card-caption h3 {
+            font-size: 1.35rem;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+            color: #0f172a;
+            margin: 0;
+            word-break: break-word;
+        }
+
+        /* небольшая подсказка для интерактива */
+        .edit-hint {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #475569;
+            background: #eef2ff80;
+            padding: 0.6rem 1rem;
+            border-radius: 60px;
+            display: inline-block;
+            width: auto;
+            backdrop-filter: blur(2px);
+        }
+
+        .footer-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #cbd5e1;
+        }
+
+        button {
+            background: #1e293b;
+            border: none;
+            color: white;
+            font-weight: 500;
+            padding: 0.6rem 1.2rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: inherit;
+        }
+
+        button:hover {
+            background: #0f172a;
+            transform: scale(0.97);
+        }
+
+        .reset-btn {
+            background: #475569;
+        }
+
+        .reset-btn:hover {
+            background: #334155;
+        }
+
+        /* для удобства добавления картинок через клик */
+        .image-wrapper input {
+            display: none;
+        }
+
+        /* адаптивность мелких экранов */
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+
+            .cards-grid {
+                gap: 1rem;
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* режим тёмной темы? на гитхабе чаще светлый, но поддержка для глаз */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #0f172a;
+                color: #e2e8f0;
+            }
+
+            .card {
+                background: #1e293b;
+                box-shadow: 0 12px 20px -12px #00000040;
+            }
+
+            .card-caption {
+                background: #1e293b;
+                border-top-color: #334155;
+            }
+
+            .card-caption h3 {
+                color: #f1f5f9;
+            }
+
+            .section-title {
+                color: #f8fafc;
+                border-bottom-color: #334155;
+            }
+
+            .edit-hint {
+                background: #1e293b;
+                color: #cbd5e6;
+            }
+
+            .placeholder-icon {
+                background: #0f172a;
+            }
+
+            button {
+                background: #334155;
+            }
+
+            button:hover {
+                background: #475569;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="gallery">
+    <!-- "Текст" как в референсе — можно менять содержание -->
+    <div class="section-title">📸 Текст · галерея</div>
+
+    <!-- сетка карточек: каждая = Фото + Наз -->
+    <div class="cards-grid" id="cardsGrid"></div>
+
+    <div class="footer-actions">
+        <div class="edit-hint">
+            🖼️ Кликни на любое фото → загрузи свою картинку (PNG, JPG, GIF, WEBP)
+        </div>
+        <div>
+            <button id="addCardBtn" title="Добавить новую карточку">+ Добавить карточку</button>
+            <button id="resetDemoBtn" class="reset-btn">⟳ Сбросить пример</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ----- СТРУКТУРА ДАННЫХ: массив объектов { imageUrl, title }
+    // Начальные данные — точно как в описании: 3 элемента "Фото - Наз" и дополнительный ['Наз']
+    // Но чтобы визуал соответствовал "Фото + Наз", я создам 4 карточки:
+    // первые три: иконка-плейсхолдер + "Название 1..3", четвёртая: "Без фото, но название"
+    // но в задании "Фото - Наз" повторяется, и в конце отдельно "Наз".
+    // Сделаем элегантно: 4 карточки, где картинки можно подставить, название редактируется
+    // двойным кликом по тексту (очень удобно для GitHub).
+    // Плюс каждая карточка хранит внутреннее состояние.
+    let cardsData = [
+        { imageUrl: null, title: "Космическая сингулярность" },
+        { imageUrl: null, title: "Туманность Ориона" },
+        { imageUrl: null, title: "Галактика Андромеды" },
+        { imageUrl: null, title: "Млечный Путь" }
+    ];
+
+    // функция для сохранения данных в localStorage (опционально, чтобы не терять картинки после перезагрузки)
+    function saveToLocal() {
+        try {
+            // сохраняем данные, кроме File-объектов — там хранятся только url (imageUrl может быть dataURL или внешний URL)
+            const storeData = cardsData.map(card => ({
+                imageUrl: card.imageUrl,
+                title: card.title
+            }));
+            localStorage.setItem("github_visual_cards", JSON.stringify(storeData));
+        } catch(e) { console.warn(e); }
+    }
+
+    function loadFromLocal() {
+        const saved = localStorage.getItem("github_visual_cards");
+        if(saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if(Array.isArray(parsed) && parsed.length) {
+                    cardsData = parsed.map(p => ({
+                        imageUrl: p.imageUrl || null,
+                        title: p.title || "Без названия"
+                    }));
+                    return true;
+                }
+            } catch(e) {}
+        }
+        return false;
+    }
+
+    // рендер всей сетки
+    function renderGrid() {
+        const grid = document.getElementById("cardsGrid");
+        if(!grid) return;
+        grid.innerHTML = "";
+        cardsData.forEach((card, idx) => {
+            const cardDiv = document.createElement("div");
+            cardDiv.className = "card";
+            // внутренняя структура
+            // Image wrapper
+            const imgWrapper = document.createElement("div");
+            imgWrapper.className = "image-wrapper";
+            // атрибут для загрузки файлов
+            const fileInput = document.createElement("input");
+            fileInput.type = "file";
+            fileInput.accept = "image/jpeg, image/png, image/webp, image/gif, image/jpg, image/svg+xml";
+            fileInput.style.display = "none";
+            fileInput.setAttribute("data-idx", idx);
+            
+            // контейнер для отображения картинки или плейсхолдера
+            const displayContainer = document.createElement("div");
+            displayContainer.style.width = "100%";
+            displayContainer.style.height = "100%";
+            displayContainer.style.display = "flex";
+            displayContainer.style.alignItems = "center";
+            displayContainer.style.justifyContent = "center";
+
+            function updateImageDisplay() {
+                displayContainer.innerHTML = "";
+                const currentImg = cardsData[idx].imageUrl;
+                if(currentImg && currentImg.trim() !== "") {
+                    const imgElem = document.createElement("img");
+                    imgElem.src = currentImg;
+                    imgElem.alt = cardsData[idx].title || "Фото";
+                    imgElem.className = "card-img";
+                    imgElem.style.width = "100%";
+                    imgElem.style.height = "100%";
+                    imgElem.style.objectFit = "cover";
+                    // обработка ошибки загрузки (если ссылка битая)
+                    imgElem.onerror = () => {
+                        // если картинка не грузится, сбросим imageUrl в null (но не удаляем данные навсегда)
+                        if(confirm("Не удалось загрузить картинку. Удалить некорректную ссылку и вернуть плейсхолдер?")) {
+                            cardsData[idx].imageUrl = null;
+                            saveToLocal();
+                            updateImageDisplay();
+                        } else {
+                            // показываем иконку ошибки поверх
+                            displayContainer.innerHTML = '<div class="placeholder-icon"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg><span>⚠️ Ошибка</span></div>';
+                        }
+                    };
+                    displayContainer.appendChild(imgElem);
+                } else {
+                    // плейсхолдер "Фото" в стиле макета
+                    const placeholderDiv = document.createElement("div");
+                    placeholderDiv.className = "placeholder-icon";
+                    placeholderDiv.innerHTML = `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                            <rect x="2" y="2" width="20" height="20" rx="2.18" />
+                            <circle cx="8.5" cy="8.5" r="2.5" />
+                            <path d="M21 15l-5-4-3 3-4-4-5 5" />
+                        </svg>
+                        <span>📷 Фото</span>
+                    `;
+                    displayContainer.appendChild(placeholderDiv);
+                }
+            }
+
+            // обработчик для клика по wrapper — загрузить фото
+            const updateImageFromFile = (file) => {
+                if(file && file.type.startsWith("image/")) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        cardsData[idx].imageUrl = e.target.result;
+                        saveToLocal();
+                        updateImageDisplay();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    alert("Пожалуйста, выберите изображение (jpg, png, webp, gif)");
+                }
+            };
+
+            fileInput.onchange = (e) => {
+                if(e.target.files && e.target.files[0]) {
+                    updateImageFromFile(e.target.files[0]);
+                }
+                fileInput.value = ""; // чтобы можно было повторно загрузить тот же файл
+            };
+
+            // клик по области фото для загрузки
+            imgWrapper.addEventListener("click", (e) => {
+                e.stopPropagation();
+                fileInput.click();
+            });
+
+            // часть с названием (редактируемое)
+            const captionDiv = document.createElement("div");
+            captionDiv.className = "card-caption";
+            const titleElem = document.createElement("h3");
+            titleElem.textContent = cardsData[idx].title || "Название";
+            titleElem.style.cursor = "text";
+            titleElem.title = "Двойной клик, чтобы изменить название";
+            // двойной клик для редактирования названия
+            titleElem.addEventListener("dblclick", (e) => {
+                e.stopPropagation();
+                const newTitle = prompt("Введите новое название:", cardsData[idx].title);
+                if(newTitle !== null && newTitle.trim() !== "") {
+                    cardsData[idx].title = newTitle.trim();
+                    saveToLocal();
+                    titleElem.textContent = cardsData[idx].title;
+                } else if(newTitle === "") {
+                    cardsData[idx].title = "Без названия";
+                    saveToLocal();
+                    titleElem.textContent = "Без названия";
+                }
+            });
+            captionDiv.appendChild(titleElem);
+            
+            // бонус: иконка для смены картинки через контекстное меню?
+            imgWrapper.appendChild(displayContainer);
+            imgWrapper.appendChild(fileInput);
+            cardDiv.appendChild(imgWrapper);
+            cardDiv.appendChild(captionDiv);
+            
+            // добавить возможность удаления карточки (клик правой кнопкой или дополнительная кнопка, но для чистоты UX)
+            // сделаем так: клик правой кнопкой по карточке вызывает удаление (с подтверждением)
+            cardDiv.addEventListener("contextmenu", (e) => {
+                e.preventDefault();
+                if(confirm(`Удалить карточку "${cardsData[idx].title}" ?`)) {
+                    cardsData.splice(idx, 1);
+                    saveToLocal();
+                    renderGrid();
+                }
+            });
+            
+            grid.appendChild(cardDiv);
+        });
+        
+        // если сетка пустая, можно показать заглушку
+        if(cardsData.length === 0) {
+            const emptyMsg = document.createElement("div");
+            emptyMsg.style.textAlign = "center";
+            emptyMsg.style.gridColumn = "1 / -1";
+            emptyMsg.style.padding = "3rem";
+            emptyMsg.style.background = "#ffffff80";
+            emptyMsg.style.borderRadius = "2rem";
+            emptyMsg.innerHTML = "<p style='font-size:1.2rem'>✨ Нет карточек. Нажмите «Добавить карточку»</p>";
+            grid.appendChild(emptyMsg);
+        }
+    }
+
+    // добавить новую карточку
+    function addNewCard() {
+        const newTitle = prompt("Введите название для новой карточки:", "Новое изображение");
+        const finalTitle = (newTitle && newTitle.trim() !== "") ? newTitle.trim() : "Название";
+        cardsData.push({
+            imageUrl: null,
+            title: finalTitle
+        });
+        saveToLocal();
+        renderGrid();
+        // после добавления плавно прокрутим к концу
+        setTimeout(() => {
+            const grid = document.getElementById("cardsGrid");
+            if(grid && grid.lastChild) {
+                grid.lastChild.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        }, 100);
+    }
+
+    // сброс демо-данных — до начального состояния с плейсхолдерами
+    function resetToDemo() {
+        if(confirm("Сбросить все картинки и названия к исходному примеру? Все загруженные изображения будут удалены.")) {
+            cardsData = [
+                { imageUrl: null, title: "Космическая сингулярность" },
+                { imageUrl: null, title: "Туманность Ориона" },
+                { imageUrl: null, title: "Галактика Андромеды" },
+                { imageUrl: null, title: "Млечный Путь" }
+            ];
+            // при желании добавить встроенный демо-пример картинок? Но по заданию визуал должен позволять добавлять картинки,
+            // однако для презентации можно загрузить пару примеров, но не навязывая. Оставим null (плейсхолдер "Фото")
+            saveToLocal();
+            renderGrid();
+        }
+    }
+
+    // функция инициализации: загружаем сохранённые либо стартовые данные
+    function init() {
+        const hasSaved = loadFromLocal();
+        if(!hasSaved) {
+            // Для демонстрации наполним одну из карточек красивым стоковым пейзажем? нет, лучше плейсхолдеры, 
+            // но для GitHub будет наглядно, если покажем пример загрузки. Оставим пустые плейсхолдеры.
+            // но всё же можно показать пример добавления картинки через dataURL? Не хотим нарушать ожидания.
+            // Добавим небольшой пример "ссылка на тестовую картинку" через placeholder? нет.
+            // Просто оставляем как есть. Пользователь сам загрузит.
+            // Чтобы сразу была иллюстрация, добавим для первой карточки картинку с Unsplash (свободная) только как пример, 
+            // но с учётом, что это локальный пример, не будет нарушением.
+            // Однако нужно быть аккуратным с внешними ресурсами, но для демо использую общедоступное изображение пейзажа.
+            // но лучше оставить без авто-загрузки, но одна картинка демо: добавим картинку первой карточки (разрешенную)?
+            // Решим: чтобы визуал сразу показывал возможность, добавим тестовую dataURL небольшого градиента? не стоит.
+            // Оставлю иконки фона. Для интерактива пользователь сам вставит.
+            // Для чистоты добавлю вспомогательную заметку.
+        }
+        renderGrid();
+    }
+
+    // прикрутим кнопки
+    document.getElementById("addCardBtn")?.addEventListener("click", addNewCard);
+    document.getElementById("resetDemoBtn")?.addEventListener("click", resetToDemo);
+    
+    // дополнительные пояснения: также реализован drag-drop? по желанию не обязательно, но круто
+    // Добавим возможность перетаскивания картинок на любую карточку
+    function setupDragAndDrop() {
+        const grid = document.getElementById("cardsGrid");
+        if(!grid) return;
+        grid.addEventListener("dragover", (e) => {
+            e.preventDefault();
+        });
+        grid.addEventListener("drop", (e) => {
+            e.preventDefault();
+            const targetCard = e.target.closest(".card");
+            if(!targetCard) return;
+            const files = e.dataTransfer.files;
+            if(files && files.length > 0 && files[0].type.startsWith("image/")) {
+                // находим индекс карточки
+                const allCards = document.querySelectorAll(".card");
+                let idx = -1;
+                for(let i = 0; i < allCards.length; i++) {
+                    if(allCards[i] === targetCard) {
+                        idx = i;
+                        break;
+                    }
+                }
+                if(idx !== -1 && cardsData[idx]) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        cardsData[idx].imageUrl = ev.target.result;
+                        saveToLocal();
+                        renderGrid();
+                    };
+                    reader.readAsDataURL(files[0]);
+                }
+            } else {
+                alert("Перетащите файл изображения на карточку");
+            }
+        });
+    }
+
+    init();
+    setupDragAndDrop();
+    // Дополнительно поддержим вставку из буфера? но и так функционал полноценный
+    // Сообщение инструкции:
+    console.log("Готово: клик по фото → загрузить своё, двойной клик по названию → изменить текст, правый клик по карточке → удалить. drag&drop изображений на карточку.");
+</script>
+</body>
+</html>
