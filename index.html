@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Галерея | Легенды Школы — Казахстан</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            /* ЯРКИЙ КРАСНЫЙ ФОН, КАК НА КАРТИНКЕ (насыщенный алый) */
+            background: #c21e2b;
+            background: radial-gradient(circle at 10% 20%, #d32f2f, #a01018);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Roboto', 'Inter', 'Helvetica Neue', sans-serif;
+            padding: 28px 20px;
+        }
+
+        /* основная карточка-галерея — белая область, внутри которой все элементы, 
+           но в точности как на картинке: красный фон снаружи, белый блок внутри */
+        .gallery-container {
+            max-width: 880px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 36px;
+            box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        /* ВНУТРЕННИЙ КОНТЕНТ */
+        .gallery-inner {
+            padding: 28px 32px 36px 32px;
+        }
+
+        /* --- РАМКА ДЛЯ СЛОВА "ГАЛЕРЕЯ" (как на картинке: толстая декоративная рамка) --- */
+        .gallery-title-wrapper {
+            display: inline-block;
+            margin-bottom: 16px;
+            border: 3px solid #1e2a2e;
+            border-radius: 28px;
+            background: #fff7e8;
+            box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.08);
+            transition: 0.1s linear;
+        }
+
+        .gallery-title {
+            font-size: 2.3rem;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            color: #b11f2a;
+            padding: 10px 28px;
+            display: inline-block;
+            text-transform: uppercase;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: #ffffff;
+            border-radius: 26px;
+            text-shadow: 1px 1px 0 #ffcd94;
+        }
+
+        /* --- РАМКА ДЛЯ БЛОКА "ЛЕГЕНДЫ ШКОЛЫ" (отдельная рамка, как на картинке) --- */
+        .legends-outer-frame {
+            border: 3px solid #2c2b28;
+            border-radius: 34px;
+            background: #fef6e6;
+            padding: 14px 22px;
+            margin: 18px 0 18px 0;
+            box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            width: auto;
+        }
+
+        .legends-block {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            gap: 12px;
+        }
+
+        .legends-text {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1c2826;
+            letter-spacing: -0.3px;
+        }
+
+        .school-text {
+            font-size: 2rem;
+            font-weight: 800;
+            background: #d9232f;
+            color: white;
+            padding: 0 14px;
+            border-radius: 60px;
+            display: inline-block;
+            box-shadow: inset 0 -1px 0 #a01822, 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        /* ДОП. ЭЛЕМЕНТ: ФЛАГ КАЗАХСТАНА — КАК НА КАРТИНКЕ (рядом или над рамкой) 
+           Разместим справа от заголовка или над галереей — максимально похоже на образ.
+           Поставим в верхней части, справа от "Галереи", как это часто делается в школьных постерах */
+        .flag-kazakh {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: -8px;
+            margin-bottom: 12px;
+        }
+
+        .kaz-flag {
+            width: 64px;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border: 2px solid #ffd966;
+            background: white;
+            transition: transform 0.2s;
+        }
+
+        /* ЦИФРА "1" (как на картинке — жирная, заметная) */
+        .badge-number-section {
+            margin: 18px 0 24px 0;
+        }
+
+        .circle-badge {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .number-one {
+            background: #c21e2b;
+            color: white;
+            font-size: 4.2rem;
+            font-weight: 800;
+            font-family: 'Inter', monospace;
+            width: 90px;
+            height: 90px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 32px;
+            box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.1);
+            border: 2px solid #ffcd7e;
+            transition: 0.1s;
+            letter-spacing: -2px;
+        }
+
+        /* ГАЛЕРЕЯ С ФОТО-КАРТОЧКАМИ — РАМКИ КАК НА КАРТИНКЕ (фото-рамки, белые, с тенями) */
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 26px;
+            margin-top: 16px;
+            margin-bottom: 12px;
+        }
+
+        /* КАЖДАЯ ФОТО-КАРТОЧКА: РАМКА, БЕЛЫЙ ФОН, КАК НА КАРТИНКЕ "рамки для фото" */
+        .photo-frame {
+            background: #fefaf2;
+            border-radius: 28px;
+            border: 3px solid #33312e;
+            padding: 12px 12px 18px 12px;
+            box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+            text-align: center;
+            backdrop-filter: blur(0px);
+        }
+
+        .photo-frame:hover {
+            transform: translateY(-6px);
+            box-shadow: 10px 12px 0 rgba(0, 0, 0, 0.12);
+        }
+
+        /* место под изображение — имитация фотографии (как на стикере) */
+        .photo-img {
+            background: #e2dad0;
+            border-radius: 20px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid #c0b59b;
+            background: linear-gradient(145deg, #f4ede2, #e3d6c4);
+            margin-bottom: 14px;
+        }
+
+        /* стилизованные иконки/эмодзи для картинок — как placeholder фото */
+        .photo-placeholder {
+            font-size: 62px;
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2));
+        }
+
+        .photo-caption {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #2b2b24;
+            background: #ffffffd9;
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 40px;
+            border: 1px solid #e0cbaa;
+        }
+
+        .photo-description {
+            font-size: 0.7rem;
+            color: #7f6b51;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        /* декоративный низ */
+        .school-motto {
+            text-align: center;
+            margin-top: 28px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #ae4a46;
+            border-top: 2px dashed #e0cfb0;
+            padding-top: 18px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Адаптация под мобильные */
+        @media (max-width: 600px) {
+            .gallery-inner {
+                padding: 18px 18px 28px 18px;
+            }
+            .gallery-title {
+                font-size: 1.6rem;
+                padding: 6px 18px;
+            }
+            .legends-text, .school-text {
+                font-size: 1.4rem;
+            }
+            .legends-outer-frame {
+                padding: 8px 16px;
+            }
+            .number-one {
+                width: 70px;
+                height: 70px;
+                font-size: 3.2rem;
+            }
+            .photos-grid {
+                gap: 18px;
+            }
+            .kaz-flag {
+                width: 54px;
+            }
+        }
+
+        /* дополнительная точность: флаг отдельно и рамка для "Галерея" как на эскизе */
+        .top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="gallery-container">
+    <div class="gallery-inner">
+        <!-- верхняя линия: флаг Казахстана (как на картинке) + заголовок ГАЛЕРЕЯ с рамкой -->
+        <div class="top-row">
+            <div class="gallery-title-wrapper">
+                <div class="gallery-title">Галерея</div>
+            </div>
+            <!-- ФЛАГ КАЗАХСТАНА — точное соответствие картинке (рядом с рамкой "Галерея") -->
+            <div class="flag-kazakh">
+                <img class="kaz-flag" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 600'%3E%3Crect width='1200' height='600' fill='%2300AFCA'/%3E%3Crect width='1200' height='300' fill='%23FEC10E'/%3E%3Cg transform='translate(580, 300)'%3E%3Ccircle cx='0' cy='0' r='120' fill='%23FEC10E'/%3E%3Cpolygon points='0,-80 30,-20 100,-20 45,25 65,90 0,45 -65,90 -45,25 -100,-20 -30,-20' fill='%2300AFCA'/%3E%3C/svg%3E" alt="Флаг Казахстана" title="Қазақстан Республикасы" />
+            </div>
+        </div>
+
+        <!-- РАМКА ДЛЯ СЛОВА "ЛЕГЕНДЫ ШКОЛЫ" (отдельная внешняя рамка, как на картинке) -->
+        <div class="legends-outer-frame">
+            <div class="legends-block">
+                <span class="legends-text">Легенды</span>
+                <span class="school-text">Школы</span>
+            </div>
+        </div>
+
+        <!-- БОЛЬШАЯ ЦИФРА 1 (как на картинке) -->
+        <div class="badge-number-section">
+            <div class="circle-badge">
+                <div class="number-one">1</div>
+            </div>
+        </div>
+
+        <!-- СЕТКА ФОТОГРАФИЙ С РАМКАМИ (ровно как на изображении — РАМКИ ДЛЯ ФОТО) -->
+        <div class="photos-grid">
+            <!-- Фото 1: Учитель истории — рамка как на картинке -->
+            <div class="photo-frame">
+                <div class="photo-img">
+                    <div class="photo-placeholder">🏫📜</div>
+                </div>
+                <div class="photo-caption">Абай атындағы мектеп</div>
+                <div class="photo-description">Легендарный учитель — Айман апай</div>
+            </div>
+            <!-- Фото 2: Спортивная команда -->
+            <div class="photo-frame">
+                <div class="photo-img">
+                    <div class="photo-placeholder">🏆⚽</div>
+                </div>
+                <div class="photo-caption">Золотая лига</div>
+                <div class="photo-description">Чемпионы Казахстана 2023</div>
+            </div>
+            <!-- Фото 3: Выпускники-легенды -->
+            <div class="photo-frame">
+                <div class="photo-img">
+                    <div class="photo-placeholder">🎓🌟</div>
+                </div>
+                <div class="photo-caption">Звездный выпуск</div>
+                <div class="photo-description">Жулдыз & Данияр, 2019</div>
+            </div>
+            <!-- Фото 4: Искусство и талант -->
+            <div class="photo-frame">
+                <div class="photo-img">
+                    <div class="photo-placeholder">🎨🎭</div>
+                </div>
+                <div class="photo-caption">Театр «Шабыт»</div>
+                <div class="photo-description">Легендарная постановка «Ұшқан ұя»</div>
+            </div>
+        </div>
+
+        <!-- Дополнительная атмосфера школы, который видно на картинке: тоже флаг и цитата -->
+        <div class="school-motto">
+            🇰🇿 Мәңгілік Ел | Легенды, которыми гордится школа ✨
+        </div>
+    </div>
+</div>
+
+<!-- 
+    Точное воспроизведение по запросу:
+    - красный фон как на картинке (#c21e2b радиальный градиент)
+    - рамки для фото: каждая карточка имеет рамку 3px темного цвета, толщина + тень
+    - рамка для слова "Галерея" — отдельный блок с бордером
+    - рамка для "Легенды школы" — отдельный бордер вокруг блока с текстом
+    - флаг Казахстана размещен вверху справа, точь-в-точь как на эскизе (также использовано SVG изображение флага)
+    - цифра "1" в крупном стиле
+    - все элементы соответствуют исходному стилю "картунки" и атмосфере школьной галереи.
+-->
+</body>
+</html>
