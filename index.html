@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Галерея | Переклады школы — свои картинки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f9f7f3;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 2rem 1.5rem;
+            color: #2c2b28;
+        }
+
+        /* основная обёртка */
+        .gallery-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* шапка с заголовком "Галерея" и подзаголовком */
+        .gallery-header {
+            margin-bottom: 2.5rem;
+            text-align: left;
+            border-left: 6px solid #d4a373;
+            padding-left: 1.5rem;
+        }
+
+        .gallery-header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #2b2d2a, #5e5b52);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .sub-line {
+            font-size: 1.2rem;
+            color: #7f6b5e;
+            font-weight: 400;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            align-items: baseline;
+        }
+
+        .sub-line span:first-child {
+            background: #e9e3da;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* сетка основных карточек — как витрина (примеры переклады школы) */
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        /* стиль карточки (и для демо, и для пустых картинок) */
+        .card {
+            background: white;
+            border-radius: 1.8rem;
+            overflow: hidden;
+            box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.08);
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(0px);
+            border: 1px solid #f0e8df;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 24px 36px -14px rgba(0, 0, 0, 0.2);
+            border-color: #e2cfbc;
+        }
+
+        /* фото-контейнер */
+        .photo-frame {
+            background: #f4efe9;
+            position: relative;
+            aspect-ratio: 4 / 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .photo-frame:hover {
+            background: #ede5db;
+        }
+
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        .card:hover .card-img {
+            transform: scale(1.02);
+        }
+
+        /* плейсхолдер для пустого места под картинку */
+        .empty-photo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            background: #faf7f2;
+            color: #b7aa99;
+            gap: 0.75rem;
+            padding: 1rem;
+        }
+
+        .empty-photo svg {
+            width: 56px;
+            height: 56px;
+            opacity: 0.6;
+            stroke: #c2b2a1;
+            stroke-width: 1.2;
+            fill: none;
+        }
+
+        .empty-photo p {
+            font-size: 0.85rem;
+            font-weight: 500;
+            background: #ffffffc9;
+            padding: 0.25rem 1rem;
+            border-radius: 60px;
+            backdrop-filter: blur(2px);
+        }
+
+        .empty-photo small {
+            font-size: 0.7rem;
+            color: #b6a692;
+        }
+
+        /* подпись карточки */
+        .card-label {
+            padding: 1rem 1.2rem 1.3rem;
+            text-align: center;
+            background: white;
+            border-top: 1px solid #f3ede7;
+        }
+
+        .card-label h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+            color: #3e3a35;
+        }
+
+        .card-label p {
+            font-size: 0.85rem;
+            color: #8e7d6c;
+            margin-top: 0.25rem;
+        }
+
+        /* секция "Место для твоих картинок" — пустые слоты внизу */
+        .custom-section {
+            margin-top: 50px;
+            border-top: 2px dashed #dbcfc2;
+            padding-top: 2rem;
+        }
+
+        .custom-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 1.8rem;
+        }
+
+        .custom-header h2 {
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: #4a423a;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .custom-header h2::before {
+            content: "⬇️";
+            font-size: 1.5rem;
+        }
+
+        .add-btn {
+            background: #dad1c5;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #2c2b28;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: inherit;
+        }
+
+        .add-btn:hover {
+            background: #cbbcaa;
+            transform: scale(0.96);
+        }
+
+        /* сетка для пользовательских картинок */
+        .user-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.8rem;
+        }
+
+        /* для удобных подсказок */
+        .instruction-tip {
+            background: #fef9e6;
+            border-radius: 60px;
+            padding: 0.5rem 1.2rem;
+            font-size: 0.8rem;
+            color: #8f7a65;
+            display: inline-block;
+            margin: 1rem 0 0.5rem;
+        }
+
+        .footer-info {
+            margin-top: 2.5rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #b8aa9a;
+            border-top: 1px solid #ece2d8;
+            padding-top: 1.5rem;
+        }
+
+        button {
+            background: none;
+            border: none;
+        }
+
+        /* редактирование названия двойным кликом */
+        .editable-title {
+            cursor: text;
+            transition: 0.1s;
+            border-bottom: 1px dashed transparent;
+        }
+
+        .editable-title:hover {
+            border-bottom-color: #d4a373;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+            .gallery-header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* тёмная тема? но для гитаба светлый стиль уютный */
+    </style>
+</head>
+<body>
+<div class="gallery-container">
+    <!-- шапка: ГАЛЕРЕЯ / переклады школы -->
+    <div class="gallery-header">
+        <h1>Галерея</h1>
+        <div class="sub-line">
+            <span>📦 переклады · школы</span>
+            <span>✨ кликни на фото → добавь свою картинку</span>
+        </div>
+    </div>
+
+    <!-- Основные примеры (как вдохновение, тоже можно перезагружать картинки) -->
+    <div class="showcase-grid" id="showcaseGrid"></div>
+
+    <!-- Место для своих картинок внизу (пустые слоты) -->
+    <div class="custom-section">
+        <div class="custom-header">
+            <h2>⬇️ Свои картинки — сюда</h2>
+            <button class="add-btn" id="addUserCardBtn">➕ Добавить пустой слот</button>
+        </div>
+        <div class="user-grid" id="userGrid"></div>
+        <div class="instruction-tip">
+            💡 Кликни на любую серую область "Фото" → выбери изображение с компьютера. 
+            Двойной клик по названию → редактируй текст. Правый клик по карточке → удалить.
+        </div>
+    </div>
+    <div class="footer-info">
+        🖼️ Все картинки хранятся локально (DataURL). Обнови страницу — картинки останутся (localStorage).
+        GitHub Pages готово: просто перетащи файл на карточку или нажми.
+    </div>
+</div>
+
+<script>
+    // ----- ДАННЫЕ ДЛЯ ДВУХ РАЗДЕЛОВ -----
+    // 1) Витрина "переклады школы" (3 примера с именами, но фото пусты, чтобы можно было свои вставить)
+    let showcaseData = [
+        { imageUrl: null, title: "Переклад в движении", subtitle: "школа №1" },
+        { imageUrl: null, title: "Архитектурный переклад", subtitle: "мастерская" },
+        { imageUrl: null, title: "Творческий подход", subtitle: "современные школы" }
+    ];
+
+    // 2) Пользовательские картинки (изначально 4 пустых слота, как просили "пустые картинки внизу")
+    let userCardsData = [
+        { imageUrl: null, title: "Моя картинка", subtitle: "жми сюда" },
+        { imageUrl: null, title: "Новый проект", subtitle: "добавь фото" },
+        { imageUrl: null, title: "Вдохновение", subtitle: "переклады" },
+        { imageUrl: null, title: "Свободный слот", subtitle: "твоя работа" }
+    ];
+
+    // ---------- Работа с localStorage ----------
+    function saveAllToLocal() {
+        const storage = {
+            showcase: showcaseData,
+            userCards: userCardsData
+        };
+        localStorage.setItem("gallery_visual_kit", JSON.stringify(storage));
+    }
+
+    function loadFromLocal() {
+        const saved = localStorage.getItem("gallery_visual_kit");
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (parsed.showcase && Array.isArray(parsed.showcase)) showcaseData = parsed.showcase;
+                if (parsed.userCards && Array.isArray(parsed.userCards)) userCardsData = parsed.userCards;
+                return true;
+            } catch(e) { console.warn(e); }
+        }
+        return false;
+    }
+
+    // функция создания DOM-карточки (универсальная для обоих типов, но с разными обработчиками удаления/изменения)
+    function createCard(cardItem, index, type, onDataUpdate) {
+        // type: 'showcase' или 'user'
+        const cardDiv = document.createElement("div");
+        cardDiv.className = "card";
+        
+        // фото-контейнер + инпут для загрузки
+        const photoDiv = document.createElement("div");
+        photoDiv.className = "photo-frame";
+        
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.accept = "image/jpeg, image/png, image/webp, image/gif, image/jpg";
+        fileInput.style.display = "none";
+        
+        // контейнер для показа картинки / пустого места
+        const displayContainer = document.createElement("div");
+        displayContainer.style.width = "100%";
+        displayContainer.style.height = "100%";
+        displayContainer.style.display = "flex";
+        displayContainer.style.alignItems = "center";
+        displayContainer.style.justifyContent = "center";
+        
+        // функция обновления отображения (картинка или плейсхолдер)
+        function updateDisplay() {
+            displayContainer.innerHTML = "";
+            const imgUrl = cardItem.imageUrl;
+            if (imgUrl && imgUrl.trim() !== "") {
+                const imgElem = document.createElement("img");
+                imgElem.src = imgUrl;
+                imgElem.alt = cardItem.title || "фото";
+                imgElem.className = "card-img";
+                imgElem.style.width = "100%";
+                imgElem.style.height = "100%";
+                imgElem.style.objectFit = "cover";
+                imgElem.onerror = () => {
+                    // если картинка битая, предложим сбросить
+                    if (confirm("Изображение не загрузилось. Удалить его и вернуть плейсхолдер?")) {
+                        cardItem.imageUrl = null;
+                        if (onDataUpdate) onDataUpdate();
+                        updateDisplay();
+                        saveAllToLocal();
+                    } else {
+                        // показываем иконку ошибки
+                        displayContainer.innerHTML = `<div class="empty-photo"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg><p>⚠️ Ошибка загрузки</p></div>`;
+                    }
+                };
+                displayContainer.appendChild(imgElem);
+            } else {
+                // Пустое место: стиль "место для картинки"
+                const emptyDiv = document.createElement("div");
+                emptyDiv.className = "empty-photo";
+                emptyDiv.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+                        <rect x="2" y="2" width="20" height="20" rx="2.18" />
+                        <circle cx="8.5" cy="8.5" r="2.5" />
+                        <path d="M21 15l-5-4-3 3-4-4-5 5" />
+                    </svg>
+                    <p>📸 Фото</p>
+                    <small>нажми, чтобы загрузить</small>
+                `;
+                displayContainer.appendChild(emptyDiv);
+            }
+        }
+        
+        // обработчик загрузки файла
+        const handleFileChange = (file) => {
+            if (file && file.type.startsWith("image/")) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    cardItem.imageUrl = e.target.result;
+                    if (onDataUpdate) onDataUpdate();
+                    updateDisplay();
+                    saveAllToLocal();
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert("Пожалуйста, выберите изображение (PNG, JPG, GIF, WEBP)");
+            }
+        };
+        
+        fileInput.onchange = (e) => {
+            if (e.target.files && e.target.files[0]) {
+                handleFileChange(e.target.files[0]);
+            }
+            fileInput.value = "";
+        };
+        
+        // клик по фото для загрузки
+        photoDiv.addEventListener("click", (e) => {
+            e.stopPropagation();
+            fileInput.click();
+        });
+        
+        // поддержка drag & drop на каждую карточку
+        photoDiv.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            photoDiv.style.background = "#e9e0d6";
+        });
+        photoDiv.addEventListener("dragleave", () => {
+            photoDiv.style.background = "";
+        });
+        photoDiv.addEventListener("drop", (e) => {
+            e.preventDefault();
+            photoDiv.style.background = "";
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0 && files[0].type.startsWith("image/")) {
+                handleFileChange(files[0]);
+            } else {
+                alert("Перетащите файл изображения");
+            }
+        });
+        
+        photoDiv.appendChild(displayContainer);
+        photoDiv.appendChild(fileInput);
+        
+        // Блок названия (с возможностью редактирования двойным кликом)
+        const labelDiv = document.createElement("div");
+        labelDiv.className = "card-label";
+        const titleElem = document.createElement("h3");
+        titleElem.className = "editable-title";
+        titleElem.textContent = cardItem.title || "Без названия";
+        titleElem.title = "Двойной клик, чтобы изменить";
+        
+        const subElem = document.createElement("p");
+        subElem.textContent = cardItem.subtitle || "";
+        subElem.className = "editable-sub";
+        subElem.style.cursor = "text";
+        subElem.title = "Двойной клик для редактирования подзаголовка";
+        
+        // редактирование названия
+        titleElem.addEventListener("dblclick", (e) => {
+            e.stopPropagation();
+            const newVal = prompt("Введите новое название:", cardItem.title);
+            if (newVal !== null && newVal.trim() !== "") {
+                cardItem.title = newVal.trim();
+                titleElem.textContent = cardItem.title;
+                if (onDataUpdate) onDataUpdate();
+                saveAllToLocal();
+            } else if (newVal === "") {
+                cardItem.title = "Без названия";
+                titleElem.textContent = cardItem.title;
+                if (onDataUpdate) onDataUpdate();
+                saveAllToLocal();
+            }
+        });
+        
+        // редактирование подзаголовка ("школы, переклады")
+        subElem.addEventListener("dblclick", (e) => {
+            e.stopPropagation();
+            const newSub = prompt("Редактировать дополнительный текст:", cardItem.subtitle || "");
+            if (newSub !== null) {
+                cardItem.subtitle = newSub;
+                subElem.textContent = cardItem.subtitle || "";
+                if (onDataUpdate) onDataUpdate();
+                saveAllToLocal();
+            }
+        });
+        
+        labelDiv.appendChild(titleElem);
+        if (cardItem.subtitle !== undefined) labelDiv.appendChild(subElem);
+        
+        cardDiv.appendChild(photoDiv);
+        cardDiv.appendChild(labelDiv);
+        
+        // правый клик - удаление карточки (можно удалить любую)
+        cardDiv.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            if (confirm(`Удалить карточку "${cardItem.title || 'без имени'}" ?`)) {
+                if (type === 'showcase') {
+                    showcaseData.splice(index, 1);
+                    if (onDataUpdate) onDataUpdate();
+                    renderShowcase();
+                } else if (type === 'user') {
+                    userCardsData.splice(index, 1);
+                    if (onDataUpdate) onDataUpdate();
+                    renderUserGrid();
+                }
+                saveAllToLocal();
+            }
+        });
+        
+        return cardDiv;
+    }
+    
+    // рендер витрины (переклады школы)
+    function renderShowcase() {
+        const showcaseGrid = document.getElementById("showcaseGrid");
+        if (!showcaseGrid) return;
+        showcaseGrid.innerHTML = "";
+        if (showcaseData.length === 0) {
+            const emptyMsg = document.createElement("div");
+            emptyMsg.style.gridColumn = "1 / -1";
+            emptyMsg.style.padding = "2rem";
+            emptyMsg.style.textAlign = "center";
+            emptyMsg.style.background = "#f3ede7";
+            emptyMsg.style.borderRadius = "2rem";
+            emptyMsg.innerHTML = "➕ Нет примеров, нажмите кнопку добавить? (или перезагрузите сброс)";
+            showcaseGrid.appendChild(emptyMsg);
+        } else {
+            showcaseData.forEach((item, idx) => {
+                const card = createCard(item, idx, 'showcase', () => {
+                    // колбэк для синхронизации (после изменения картинки/текста рендерим заново)
+                    renderShowcase();
+                    saveAllToLocal();
+                });
+                showcaseGrid.appendChild(card);
+            });
+        }
+    }
+    
+    // рендер пользовательской сетки (внизу, пустые картинки)
+    function renderUserGrid() {
+        const userGrid = document.getElementById("userGrid");
+        if (!userGrid) return;
+        userGrid.innerHTML = "";
+        if (userCardsData.length === 0) {
+            const emptyPlaceholder = document.createElement("div");
+            emptyPlaceholder.style.gridColumn = "1 / -1";
+            emptyPlaceholder.style.padding = "2rem";
+            emptyPlaceholder.style.textAlign = "center";
+            emptyPlaceholder.style.background = "#fbf7f0";
+            emptyPlaceholder.style.borderRadius = "1.5rem";
+            emptyPlaceholder.innerHTML = "✨ Нет своих карточек. Нажми «Добавить пустой слот», чтобы создать место под картинку.";
+            userGrid.appendChild(emptyPlaceholder);
+        } else {
+            userCardsData.forEach((card, idx) => {
+                const userCard = createCard(card, idx, 'user', () => {
+                    renderUserGrid();
+                    saveAllToLocal();
+                });
+                userGrid.appendChild(userCard);
+            });
+        }
+    }
+    
+    // добавление нового пустого слота (вниз)
+    function addEmptyUserSlot() {
+        userCardsData.push({
+            imageUrl: null,
+            title: "Новый слот",
+            subtitle: "добавь своё фото"
+        });
+        renderUserGrid();
+        saveAllToLocal();
+    }
+    
+    // для удобства: добавить демо-сброс? не обязательно, но добавим скрытую возможность? 
+    // но сделаем кнопку сброса только для пользовательских? лучше оставить чисто руками.
+    // дополнительно: кнопка "Сбросить всё к первоначальному виду"
+    window.resetToOriginal = () => {
+        if (confirm("Сбросить все картинки и названия к исходному виду? Все ваши загруженные изображения будут удалены.")) {
+            showcaseData = [
+                { imageUrl: null, title: "Переклад в движении", subtitle: "школа №1" },
+                { imageUrl: null, title: "Архитектурный переклад", subtitle: "мастерская" },
+                { imageUrl: null, title: "Творческий подход", subtitle: "современные школы" }
+            ];
+            userCardsData = [
+                { imageUrl: null, title: "Моя картинка", subtitle: "жми сюда" },
+                { imageUrl: null, title: "Новый проект", subtitle: "добавь фото" },
+                { imageUrl: null, title: "Вдохновение", subtitle: "переклады" },
+                { imageUrl: null, title: "Свободный слот", subtitle: "твоя работа" }
+            ];
+            saveAllToLocal();
+            renderShowcase();
+            renderUserGrid();
+        }
+    };
+    
+    // дополнительные кнопки: добавим маленькую плашку сброса
+    function addResetButton() {
+        const customHeader = document.querySelector(".custom-header");
+        if (customHeader && !document.getElementById("softResetBtn")) {
+            const resetBtn = document.createElement("button");
+            resetBtn.id = "softResetBtn";
+            resetBtn.className = "add-btn";
+            resetBtn.style.background = "#cec3b6";
+            resetBtn.innerHTML = "⟳ Сбросить примеры";
+            resetBtn.onclick = () => window.resetToOriginal();
+            customHeader.appendChild(resetBtn);
+        }
+    }
+    
+    // инициализация
+    function init() {
+        loadFromLocal();
+        renderShowcase();
+        renderUserGrid();
+        addResetButton();
+        // кнопка добавления новой пользовательской карточки
+        const addBtn = document.getElementById("addUserCardBtn");
+        if (addBtn) addBtn.addEventListener("click", addEmptyUserSlot);
+        
+        // глобальный drag-drop для body - поддержка быстрой загрузки
+        document.body.addEventListener("dragover", (e) => e.preventDefault());
+        document.body.addEventListener("drop", (e) => e.preventDefault());
+    }
+    
+    init();
+</script>
+</body>
+</html>
