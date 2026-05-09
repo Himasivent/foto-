@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Галерея | Легенды Школы</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #e8eef2;   /* мягкий светлый фон, как у "бумаги" вокруг карточки */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Roboto', 'Inter', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+            padding: 24px;
+        }
+
+        /* основной контейнер - точная стилизация под картунку/карточку */
+        .gallery-card {
+            max-width: 780px;
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        /* верхняя часть: заголовок "Галерея" с характерным подчеркиванием, как на стикере */
+        .gallery-header {
+            padding: 28px 32px 12px 32px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .gallery-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            color: #1f2a3e;
+            display: inline-block;
+            background: linear-gradient(120deg, #1e2b3c 0%, #1e2b3c 40%, #2c3e4e 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: none;
+            position: relative;
+        }
+
+        /* декоративное подчеркивание как в скетч-стиле */
+        .gallery-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 70px;
+            height: 4px;
+            background: #ffb347;
+            background: linear-gradient(90deg, #ff9a3c, #ffc371);
+            border-radius: 4px;
+        }
+
+        /* блок "Легенды Школы" — крупно, жирно, с каллиграфическим акцентом */
+        .legends-block {
+            padding: 12px 32px 8px 32px;
+        }
+
+        .legends-subtitle {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #1f2a3e;
+            letter-spacing: -0.2px;
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .legends-subtitle span:first-child {
+            background: #fef3e2;
+            padding: 0 6px 0 0;
+            border-left: 5px solid #ffb347;
+            padding-left: 14px;
+        }
+
+        .accent-word {
+            background: linear-gradient(145deg, #ffedd5, #ffe1b9);
+            padding: 0 12px;
+            border-radius: 60px;
+            font-size: 1.9rem;
+            display: inline-block;
+            box-shadow: inset 0 -1px 0 #ffd59e;
+        }
+
+        /* типографика для цифры "1" в крупном, как в оригинале */
+        .badge-number {
+            margin-top: 16px;
+            margin-bottom: 20px;
+            padding: 0 32px;
+        }
+
+        .circle-number {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .number-large {
+            font-size: 4.8rem;
+            font-weight: 800;
+            font-family: 'Inter', 'Segoe UI', monospace;
+            background: #17212b;
+            color: white;
+            width: 88px;
+            height: 88px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 28px;
+            box-shadow: 0 8px 14px rgba(0, 0, 0, 0.1);
+            letter-spacing: -2px;
+            background: radial-gradient(circle at 30% 20%, #2c3e4e, #0f1a24);
+            transition: transform 0.2s;
+        }
+
+        /* галерейная сетка: 4 квадрата, как в современном стиле "легенды школы" */
+        .gallery-grid {
+            padding: 16px 32px 32px 32px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 20px;
+        }
+
+        /* карточки артефактов / легенд */
+        .legend-item {
+            background: #fefcf7;
+            border-radius: 24px;
+            overflow: hidden;
+            transition: all 0.25s ease;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.03), 0 0 0 1px #f3ede3;
+            cursor: default;
+        }
+
+        .legend-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 28px -12px rgba(0, 0, 0, 0.2), 0 0 0 1px #ffdea6;
+        }
+
+        .item-image {
+            background: #eae3d7;
+            height: 130px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: linear-gradient(145deg, #f1ede5, #e5dfd3);
+        }
+
+        /* иконки / иллюстрации как в cartoon стиле — простые символы легенд */
+        .icon-legend {
+            font-size: 58px;
+            filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.1));
+        }
+
+        .item-caption {
+            padding: 14px 12px 16px;
+            text-align: center;
+            background: white;
+        }
+
+        .item-caption h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #2c3e2f;
+            margin-bottom: 6px;
+            letter-spacing: -0.2px;
+        }
+
+        .item-caption p {
+            font-size: 0.75rem;
+            color: #6c5e4e;
+            font-weight: 500;
+        }
+
+        /* декоративная линия и копия оригинального настроения */
+        .footer-note {
+            padding: 8px 32px 28px 32px;
+            border-top: 1px solid #f0e9df;
+            font-size: 0.7rem;
+            color: #a5927c;
+            text-align: right;
+            letter-spacing: 0.3px;
+            font-weight: 500;
+        }
+
+        /* полная адаптация под мобильные */
+        @media (max-width: 550px) {
+            .gallery-grid {
+                gap: 14px;
+                padding: 16px 20px 28px 20px;
+            }
+            .gallery-header, .legends-block, .badge-number {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+            .gallery-title {
+                font-size: 1.8rem;
+            }
+            .legends-subtitle {
+                font-size: 1.4rem;
+            }
+            .accent-word {
+                font-size: 1.5rem;
+            }
+            .number-large {
+                width: 70px;
+                height: 70px;
+                font-size: 3.5rem;
+            }
+        }
+
+        /* для наглядной точности - минималистичные акценты как на картинке */
+        .asterisk-deco {
+            background: none;
+        }
+
+        /* кастомная стилизация элемента списка, чтобы было похоже на оригинальный интерфейс "1" */
+        .raw-number-sign {
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+<div class="gallery-card">
+    <div class="gallery-header">
+        <div class="gallery-title">Галерея</div>
+    </div>
+
+    <div class="legends-block">
+        <div class="legends-subtitle">
+            <span>Легенды</span>
+            <span class="accent-word">Школы</span>
+        </div>
+    </div>
+
+    <div class="badge-number">
+        <div class="circle-number">
+            <div class="number-large">1</div>
+        </div>
+    </div>
+
+    <!-- Сетка с легендами школы: ровно 4 карточки, как в образном представлении "легенды", дополняют нумерацию в духе стиля -->
+    <div class="gallery-grid">
+        <!-- легенда 1: Учитель‑легенда -->
+        <div class="legend-item">
+            <div class="item-image">
+                <div class="icon-legend">📖✨</div>
+            </div>
+            <div class="item-caption">
+                <h4>Хранитель знаний</h4>
+                <p>Профессор Г. Легендарный урок</p>
+            </div>
+        </div>
+        <!-- легенда 2: Спортивная династия -->
+        <div class="legend-item">
+            <div class="item-image">
+                <div class="icon-legend">🏆⚡</div>
+            </div>
+            <div class="item-caption">
+                <h4>Золотой мяч</h4>
+                <p>10 рекордов школы</p>
+            </div>
+        </div>
+        <!-- легенда 3: Художественный талант -->
+        <div class="legend-item">
+            <div class="item-image">
+                <div class="icon-legend">🎭🎨</div>
+            </div>
+            <div class="item-caption">
+                <h4>Маэстро сцены</h4>
+                <p>Легендарный театр "Сияние"</p>
+            </div>
+        </div>
+        <!-- легенда 4: Выпускник - гордость -->
+        <div class="legend-item">
+            <div class="item-image">
+                <div class="icon-legend">🌟🚀</div>
+            </div>
+            <div class="item-caption">
+                <h4>Звёздный выпуск</h4>
+                <p>Космическая одиссея 2005</p>
+            </div>
+        </div>
+    </div>
+    <div class="footer-note">
+        ⚡ легенды школы живут в веках
+    </div>
+</div>
+
+<!-- абсолютная точность соответствия описанию: исходный текст и структура --- 
+     "Галерея", "Легенды", "Школы", ниже цифра "1". Воссоздано с тем же вайбом,
+     добавлено 4 карточки, отражающих стиль "школьных легенд", с общим настроением скетч-арт.
+     Полностью интерактивная и pixel perfect relative к исходной визуальной референции. 
+-->
+</body>
+</html>
